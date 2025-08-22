@@ -1,11 +1,11 @@
-# SudoColor 🎨
+# SudoCor 🎨
 
 A unique and colorful Sudoku game built with React and TypeScript, featuring a beautiful dark theme and an innovative color-based gameplay mode.
 
 ## ✨ Features
 
 ### 🎮 Game Modes
-- **SudoColor Mode**: Play Sudoku using 9 beautiful colors instead of numbers
+- **SudoCor Mode**: Play Sudoku using 9 beautiful colors instead of numbers
 - **Traditional Mode**: Classic Sudoku with numbers 1-9
 - **Seamless Switching**: Toggle between modes at any time
 
@@ -51,8 +51,8 @@ The game features 9 carefully selected colors:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/sudocolor.git
-   cd sudocolor
+   git clone https://github.com/yourusername/SudoCor.git
+   cd SudoCor
    ```
 
 2. **Install dependencies**
@@ -88,7 +88,7 @@ pnpm build
 
 ##  How to Play
 
-### SudoColor Mode
+### SudoCor Mode
 1. Click on any empty cell to open the color selector
 2. Choose one of the 9 available colors
 3. Fill the grid so that no color repeats in any row, column, or 3x3 box
@@ -102,7 +102,7 @@ pnpm build
 
 ### Switching Modes
 - Click the "TRADICIONAL" button to switch to number mode
-- Click the "SUDOCOLOR" button to switch to color mode
+- Click the "SudoCor" button to switch to color mode
 - The game will reset with a new puzzle when switching modes
 
 ## 📁 Project Structure
@@ -121,7 +121,7 @@ src/
 
 This comprehensive README includes:
 
-✅ **Project Overview**: Clear description of what SudoColor is
+✅ **Project Overview**: Clear description of what SudoCor is
 ✅ **Features List**: All the game modes and features
 ✅ **Technology Stack**: Complete list of technologies used
 ✅ **Installation Guide**: Step-by-step setup instructions
@@ -178,4 +178,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Enjoy playing SudoColor!** 🌈✨
+**Enjoy playing SudoCor!** 🌈✨

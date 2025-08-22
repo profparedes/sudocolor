@@ -69,7 +69,7 @@ function App() {
               },
             }}
           >
-            SudoColor
+            SudoCor
           </Typography>
           <SudokuBoard />
         </Container>
