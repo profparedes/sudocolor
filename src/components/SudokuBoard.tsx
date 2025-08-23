@@ -148,8 +148,8 @@ const SudokuBoard: React.FC = () => {
                 <Box
                     sx={{
                         position: 'absolute',
-                        top: -30,
-                        right: -30,
+                        bottom: -30,
+                        right: 0,
                         zIndex: 1,
                     }}
                 >
@@ -159,10 +159,11 @@ const SudokuBoard: React.FC = () => {
                         size="small"
                         sx={{
                             color: isPaused ? '#ff6b6b' : '#e0e0e0',
-                            borderColor: isPaused ? '#ff6b6b' : '#404040',
+                            borderColor: isPaused ? '#ff6b6b' : '#028900',
                             backgroundColor: '#2d2d2d',
                             minWidth: 'auto',
-                            padding: '8px 12px',
+                            padding: '7px 12px',
+                            borderRadius: '20px',
                             fontSize: '0.9rem',
                             '&:hover': {
                                 backgroundColor: isPaused ? '#ff6b6b20' : '#404040',
@@ -170,7 +171,7 @@ const SudokuBoard: React.FC = () => {
                             },
                         }}
                     >
-                        {isPaused ? '▶️' : '⏸️'}
+                        {isPaused ? '▶️' : '| |'}
                     </Button>
                 </Box>
 
@@ -316,17 +317,26 @@ const SudokuBoard: React.FC = () => {
                     Dificuldade:
                 </Typography>
 
-                <Box sx={{ display: 'flex', gap: 2 }}>
+                <Box sx={{
+                    display: 'flex',
+                    gap: 2,
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    maxWidth: '100%',
+                }}>
                     {(['iniciante', 'intermediario', 'avancado', 'hardcore'] as const).map((difficulty) => (
                         <Button
                             key={difficulty}
                             variant={currentDifficulty === difficulty ? 'contained' : 'outlined'}
                             onClick={() => handleDifficultyChange(difficulty)}
                             sx={{
-                                minWidth: '120px',
+                                minWidth: { xs: '140px', sm: '120px' },
+                                flex: { xs: '0 0 calc(50% - 8px)', sm: 'none' },
                                 color: currentDifficulty === difficulty ? '#1a1a1a' : '#e0e0e0',
                                 backgroundColor: currentDifficulty === difficulty ? '#e0e0e0' : 'transparent',
                                 borderColor: '#404040',
+                                fontSize: { xs: '0.8rem', sm: '1rem' },
+                                padding: { xs: '8px 12px', sm: '10px 16px' },
                                 '&:hover': {
                                     backgroundColor: currentDifficulty === difficulty ? '#b0b0b0' : '#404040',
                                     borderColor: '#606060',
