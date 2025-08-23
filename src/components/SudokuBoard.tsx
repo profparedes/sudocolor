@@ -308,7 +308,7 @@ const SudokuBoard: React.FC = () => {
                                 fontWeight: 700,
                             }}
                         >
-                            🎉 Parabéns! 🎉
+                            Parabéns!
                         </Typography>
                         <Typography
                             variant="h6"
