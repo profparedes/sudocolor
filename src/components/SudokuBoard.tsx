@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Box, Paper, Button, Typography, Dialog, DialogContent, DialogActions } from '@mui/material';
 import SudokuCell from './SudokuCell';
 import NumberSelector from './NumberSelector';
-import { generateSudoku, isValidMove, isBoardComplete, type SudokuGrid, colorMap } from '../utils/sudokuGenerator';
+import { generateSudoku, isValidMove, isBoardComplete } from '../utils/sudokuGenerator';
+import { type SudokuGrid, colorMap, hardColorMap } from '../enum/sudoku';
 
 const SudokuBoard: React.FC = () => {
     const [board, setBoard] = useState<SudokuGrid>([]);
     const [initialBoard, setInitialBoard] = useState<SudokuGrid>([]);
     const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
     const [showSelector, setShowSelector] = useState(false);
-    const [currentDifficulty, setCurrentDifficulty] = useState<'iniciante' | 'intermediario' | 'avancado'>('intermediario');
+    const [currentDifficulty, setCurrentDifficulty] = useState<'iniciante' | 'intermediario' | 'avancado' | 'hardcore'>('intermediario');
     const [showWinDialog, setShowWinDialog] = useState(false);
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [endTime, setEndTime] = useState<Date | null>(null);
@@ -56,9 +57,13 @@ const SudokuBoard: React.FC = () => {
         setShowSelector(false);
     };
 
-    const handleDifficultyChange = (difficulty: 'iniciante' | 'intermediario' | 'avancado') => {
+    const handleDifficultyChange = (difficulty: 'iniciante' | 'intermediario' | 'avancado' | 'hardcore') => {
         setCurrentDifficulty(difficulty);
         setShowWinDialog(false);
+        // Força o modo SudoCor quando selecionar hardcore
+        if (difficulty === 'hardcore') {
+            setIsColorMode(true);
+        }
     };
 
     const toggleColorMode = () => {
@@ -88,6 +93,11 @@ const SudokuBoard: React.FC = () => {
         const tempBoard: SudokuGrid = board.map(rowArray => [...rowArray]);
         tempBoard[row][col] = null;
         return !isValidMove(tempBoard, row, col, value);
+    };
+
+    // Determina qual paleta de cores usar
+    const getCurrentColorMap = () => {
+        return currentDifficulty === 'hardcore' ? hardColorMap : colorMap;
     };
 
     if (board.length === 0) {
@@ -139,6 +149,7 @@ const SudokuBoard: React.FC = () => {
                                 isInitial={isInitialCell(rowIndex, colIndex)}
                                 isInvalid={isInvalidCell(rowIndex, colIndex)}
                                 isColorMode={isColorMode}
+                                currentDifficulty={currentDifficulty}
                                 onClick={() => handleCellClick(rowIndex, colIndex)}
                             />
                         ))
@@ -151,6 +162,7 @@ const SudokuBoard: React.FC = () => {
                 onClose={handleCloseSelector}
                 onNumberSelect={handleNumberSelect}
                 isColorMode={isColorMode}
+                currentDifficulty={currentDifficulty}
             />
 
             {/* Paleta de Cores (apenas no modo SudoCor) */}
@@ -182,11 +194,11 @@ const SudokuBoard: React.FC = () => {
                     >
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((number) => (
                             <Box
-                                key={colorMap[number]}
+                                key={getCurrentColorMap()[number]}
                                 sx={{
                                     width: '40px',
                                     height: '40px',
-                                    backgroundColor: colorMap[number],
+                                    backgroundColor: getCurrentColorMap()[number],
                                     border: '1px solid #404040',
                                     borderRadius: '2px',
                                 }}
@@ -196,29 +208,31 @@ const SudokuBoard: React.FC = () => {
                 </Box>
             )}
 
-            {/* Botão de Modo */}
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                }}
-            >
-                <Button
-                    variant="contained"
-                    onClick={toggleColorMode}
+            {/* Botão de Modo (não aparece no hardcore) */}
+            {currentDifficulty !== 'hardcore' && (
+                <Box
                     sx={{
-                        backgroundColor: isColorMode ? '#e0e0e0' : '#FFD1DC',
-                        color: isColorMode ? '#1a1a1a' : '#000000',
-                        fontWeight: 600,
-                        padding: '12px 24px',
-                        '&:hover': {
-                            backgroundColor: isColorMode ? '#b0b0b0' : '#FFB6C1',
-                        },
+                        display: 'flex',
+                        justifyContent: 'center',
                     }}
                 >
-                    {isColorMode ? 'TRADICIONAL' : 'SudoCor'}
-                </Button>
-            </Box>
+                    <Button
+                        variant="contained"
+                        onClick={toggleColorMode}
+                        sx={{
+                            backgroundColor: isColorMode ? '#e0e0e0' : '#FFD1DC',
+                            color: isColorMode ? '#1a1a1a' : '#000000',
+                            fontWeight: 600,
+                            padding: '12px 24px',
+                            '&:hover': {
+                                backgroundColor: isColorMode ? '#b0b0b0' : '#FFB6C1',
+                            },
+                        }}
+                    >
+                        {isColorMode ? 'TRADICIONAL' : 'SudoCor'}
+                    </Button>
+                </Box>
+            )}
 
             {/* Botões de Dificuldade */}
             <Box
@@ -241,7 +255,7 @@ const SudokuBoard: React.FC = () => {
                 </Typography>
 
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                    {(['iniciante', 'intermediario', 'avancado'] as const).map((difficulty) => (
+                    {(['iniciante', 'intermediario', 'avancado', 'hardcore'] as const).map((difficulty) => (
                         <Button
                             key={difficulty}
                             variant={currentDifficulty === difficulty ? 'contained' : 'outlined'}
@@ -303,7 +317,7 @@ const SudokuBoard: React.FC = () => {
                                 textAlign: 'center',
                             }}
                         >
-                            Você completou o Sudoku com sucesso!
+                            Você completou o SudoCor com sucesso!
                         </Typography>
                         <Typography
                             variant="body1"

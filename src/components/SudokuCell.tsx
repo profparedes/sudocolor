@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import { colorMap, type CellValue } from '../utils/sudokuGenerator';
+import { colorMap, hardColorMap, type CellValue } from '../enum/sudoku';
 
 interface SudokuCellProps {
     value: CellValue;
@@ -9,6 +9,7 @@ interface SudokuCellProps {
     isInitial: boolean;
     isInvalid: boolean;
     isColorMode: boolean;
+    currentDifficulty: 'iniciante' | 'intermediario' | 'avancado' | 'hardcore';
     onClick: () => void;
 }
 
@@ -17,8 +18,13 @@ const SudokuCell: React.FC<SudokuCellProps> = ({
     isInitial,
     isInvalid,
     isColorMode,
+    currentDifficulty,
     onClick,
 }) => {
+    const getCurrentColorMap = () => {
+        return currentDifficulty === 'hardcore' ? hardColorMap : colorMap;
+    };
+
     return (
         <Box
             onClick={onClick}
@@ -28,12 +34,12 @@ const SudokuCell: React.FC<SudokuCellProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: value && isColorMode ? colorMap[value] : isInvalid ? '#ff6b6b20' : '#2d2d2d',
-                border: '1px solid #404040',
+                backgroundColor: value && isColorMode ? getCurrentColorMap()[value] : isInvalid ? '#ff6b6b20' : '#2d2d2d',
+                border: isInvalid ? '2px dashed red' : '1px solid #404040',
                 cursor: isInitial ? 'default' : 'pointer',
                 transition: 'all 0.2s ease',
                 '&:hover': {
-                    backgroundColor: isInitial ? (value && isColorMode ? colorMap[value] : '#2d2d2d') : '#404040',
+                    backgroundColor: isInitial ? (value && isColorMode ? getCurrentColorMap()[value] : '#2d2d2d') : '#404040',
                     transform: isInitial ? 'none' : 'scale(1.05)',
                 },
                 '&:active': {

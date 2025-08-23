@@ -6,13 +6,14 @@ import {
     Button,
     Typography,
 } from '@mui/material';
-import { colorMap } from '../utils/sudokuGenerator';
+import { colorMap, hardColorMap } from '../enum/sudoku';
 
 interface NumberSelectorProps {
     open: boolean;
     onClose: () => void;
     onNumberSelect: (number: number) => void;
     isColorMode: boolean;
+    currentDifficulty: 'iniciante' | 'intermediario' | 'avancado' | 'hardcore';
 }
 
 const NumberSelector: React.FC<NumberSelectorProps> = ({
@@ -20,9 +21,14 @@ const NumberSelector: React.FC<NumberSelectorProps> = ({
     onClose,
     onNumberSelect,
     isColorMode,
+    currentDifficulty,
 }) => {
     const handleNumberClick = (number: number) => {
         onNumberSelect(number);
+    };
+
+    const getCurrentColorMap = () => {
+        return currentDifficulty === 'hardcore' ? hardColorMap : colorMap;
     };
 
     return (
@@ -79,9 +85,9 @@ const NumberSelector: React.FC<NumberSelectorProps> = ({
                                     fontWeight: 600,
                                     color: isColorMode ? '#000000' : '#e0e0e0',
                                     borderColor: '#404040',
-                                    backgroundColor: isColorMode ? colorMap[number] : '#2d2d2d',
+                                    backgroundColor: isColorMode ? getCurrentColorMap()[number] : '#2d2d2d',
                                     '&:hover': {
-                                        backgroundColor: isColorMode ? colorMap[number] + 'CC' : '#404040',
+                                        backgroundColor: isColorMode ? getCurrentColorMap()[number] + 'CC' : '#404040',
                                         borderColor: '#606060',
                                     },
                                     '&:active': {

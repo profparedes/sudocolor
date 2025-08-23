@@ -1,19 +1,4 @@
-// Tipos
-export type CellValue = number | null;
-export type SudokuGrid = CellValue[][];
-
-// Mapeamento de números para cores
-export const colorMap: { [key: number]: string } = {
-  1: '#FFD1DC', // Rosa claro
-  2: '#FFCBA4', // Pêssego
-  3: '#FFFACD', // Amarelo claro
-  4: '#A7E8BD', // Verde claro
-  5: '#c05234', // Marrom
-  6: '#DDA0DD', // Lavanda
-  7: '#AEC6CF', // Azul claro
-  8: '#9999FF', // Azul
-  9: '#FF9999', // Rosa
-};
+import type { SudokuGrid } from "../enum/sudoku";
 
 // Função para verificar se um número é válido em uma posição específica
 export const isValidMove = (board: SudokuGrid, row: number, col: number, num: number): boolean => {
@@ -78,38 +63,37 @@ const generateCompleteBoard = (): SudokuGrid => {
     const row = Math.floor(Math.random() * 9);
     const col = Math.floor(Math.random() * 9);
     const num = Math.floor(Math.random() * 9) + 1;
-    
-    if (isValidMove(board, row, col, num)) {
-      board[row][col] = num;
-    }
+
+    if (isValidMove(board, row, col, num)) board[row][col] = num;
   }
-  
+
   // Resolve o Sudoku
   solveSudoku(board);
-  
+
   return board;
 };
 
 // Função para remover números do tabuleiro completo para criar o puzzle
-const removeNumbers = (board: SudokuGrid, difficulty: 'iniciante' | 'intermediario' | 'avancado' = 'intermediario'): SudokuGrid => {
+const removeNumbers = (board: SudokuGrid, difficulty: 'iniciante' | 'intermediario' | 'avancado' | 'hardcore' = 'intermediario'): SudokuGrid => {
   const puzzle = board.map(row => [...row]);
   const cellsToRemove = {
     iniciante: 25,
     intermediario: 35,
-    avancado: 45
+    avancado: 45,
+    hardcore: 35
   }[difficulty];
-  
+
   const positions = [];
   for (let i = 0; i < 81; i++) {
     positions.push(i);
   }
-  
+
   // Embaralha as posições
   for (let i = positions.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [positions[i], positions[j]] = [positions[j], positions[i]];
   }
-  
+
   // Remove números
   for (let i = 0; i < cellsToRemove; i++) {
     const pos = positions[i];
@@ -117,12 +101,12 @@ const removeNumbers = (board: SudokuGrid, difficulty: 'iniciante' | 'intermediar
     const col = pos % 9;
     puzzle[row][col] = null;
   }
-  
+
   return puzzle;
 };
 
 // Função principal para gerar um Sudoku
-export const generateSudoku = (difficulty: 'iniciante' | 'intermediario' | 'avancado' = 'intermediario'): SudokuGrid => {
+export const generateSudoku = (difficulty: 'iniciante' | 'intermediario' | 'avancado' | 'hardcore' = 'intermediario'): SudokuGrid => {
   const completeBoard = generateCompleteBoard();
   return removeNumbers(completeBoard, difficulty);
 };
@@ -137,17 +121,17 @@ export const isBoardComplete = (board: SudokuGrid): boolean => {
       }
     }
   }
-  
+
   // Verifica se todas as linhas, colunas e quadrados são válidos
   for (let i = 0; i < 9; i++) {
     const row = new Set(board[i]);
     const col = new Set(board.map(row => row[i]));
-    
+
     if (row.size !== 9 || col.size !== 9) {
       return false;
     }
   }
-  
+
   // Verifica os quadrados 3x3
   for (let blockRow = 0; blockRow < 3; blockRow++) {
     for (let blockCol = 0; blockCol < 3; blockCol++) {
@@ -162,6 +146,6 @@ export const isBoardComplete = (board: SudokuGrid): boolean => {
       }
     }
   }
-  
+
   return true;
 };
