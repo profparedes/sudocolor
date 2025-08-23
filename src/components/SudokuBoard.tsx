@@ -15,6 +15,10 @@ const SudokuBoard: React.FC = () => {
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [endTime, setEndTime] = useState<Date | null>(null);
     const [isColorMode, setIsColorMode] = useState(true);
+    const [isPaused, setIsPaused] = useState(false);
+    const [pauseStartTime, setPauseStartTime] = useState<Date | null>(null);
+    const [totalPauseTime, setTotalPauseTime] = useState(0);
+    const [showPauseDialog, setShowPauseDialog] = useState(false);
 
     useEffect(() => {
         const newBoard = generateSudoku(currentDifficulty);
@@ -70,8 +74,25 @@ const SudokuBoard: React.FC = () => {
         setIsColorMode(!isColorMode);
     };
 
+    const handlePause = () => {
+        if (!isPaused) {
+            setIsPaused(true);
+            setPauseStartTime(new Date());
+            setShowPauseDialog(true);
+        } else {
+            setIsPaused(false);
+            if (pauseStartTime) {
+                const pauseDuration = new Date().getTime() - pauseStartTime.getTime();
+                setTotalPauseTime(prev => prev + pauseDuration);
+            }
+            setPauseStartTime(null);
+            setShowPauseDialog(false);
+        }
+    };
+
     const formatTime = (start: Date, end: Date): string => {
-        const diffInSeconds = Math.floor((end.getTime() - start.getTime()) / 1000);
+        const actualEndTime = new Date(end.getTime() - totalPauseTime);
+        const diffInSeconds = Math.floor((actualEndTime.getTime() - start.getTime()) / 1000);
         const minutes = Math.floor(diffInSeconds / 60);
         const seconds = diffInSeconds % 60;
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
@@ -113,49 +134,90 @@ const SudokuBoard: React.FC = () => {
                 gap: 3,
             }}
         >
-            <Paper
-                elevation={8}
+            {/* Container do tabuleiro com botão de pause */}
+            <Box
                 sx={{
-                    padding: { xs: 1, md: 2 },
-                    backgroundColor: '#2d2d2d',
-                    border: '2px solid #404040',
+                    position: 'relative',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
                 }}
             >
+
+                {/* Botão de Pause - posicionado acima e à direita */}
                 <Box
                     sx={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(9, 1fr)',
-                        gap: 0.5,
-                        padding: 1,
-                        // Adiciona espaçamento extra entre blocos 3x3
-                        '& > div:nth-of-type(3n)': {
-                            marginRight: '4px',
-                        },
-                        '& > div:nth-of-type(n+19):nth-of-type(-n+27)': {
-                            marginBottom: '8px',
-                        },
-                        '& > div:nth-of-type(n+46):nth-of-type(-n+54)': {
-                            marginBottom: '8px',
-                        },
+                        position: 'absolute',
+                        top: -30,
+                        right: -30,
+                        zIndex: 1,
                     }}
                 >
-                    {board.map((row, rowIndex) =>
-                        row.map((cell, colIndex) => (
-                            <SudokuCell
-                                key={`${rowIndex}-${colIndex}`}
-                                value={cell}
-                                row={rowIndex}
-                                col={colIndex}
-                                isInitial={isInitialCell(rowIndex, colIndex)}
-                                isInvalid={isInvalidCell(rowIndex, colIndex)}
-                                isColorMode={isColorMode}
-                                currentDifficulty={currentDifficulty}
-                                onClick={() => handleCellClick(rowIndex, colIndex)}
-                            />
-                        ))
-                    )}
+                    <Button
+                        variant="outlined"
+                        onClick={handlePause}
+                        size="small"
+                        sx={{
+                            color: isPaused ? '#ff6b6b' : '#e0e0e0',
+                            borderColor: isPaused ? '#ff6b6b' : '#404040',
+                            backgroundColor: '#2d2d2d',
+                            minWidth: 'auto',
+                            padding: '8px 12px',
+                            fontSize: '0.9rem',
+                            '&:hover': {
+                                backgroundColor: isPaused ? '#ff6b6b20' : '#404040',
+                                borderColor: isPaused ? '#ff6b6b' : '#606060',
+                            },
+                        }}
+                    >
+                        {isPaused ? '▶️' : '⏸️'}
+                    </Button>
                 </Box>
-            </Paper>
+
+                <Paper
+                    elevation={8}
+                    sx={{
+                        padding: { xs: 1, md: 2 },
+                        backgroundColor: '#2d2d2d',
+                        border: '2px solid #404040',
+                    }}
+                >
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(9, 1fr)',
+                            gap: 0.5,
+                            padding: 1,
+                            // Adiciona espaçamento extra entre blocos 3x3
+                            '& > div:nth-of-type(3n)': {
+                                marginRight: '4px',
+                            },
+                            '& > div:nth-of-type(n+19):nth-of-type(-n+27)': {
+                                marginBottom: '8px',
+                            },
+                            '& > div:nth-of-type(n+46):nth-of-type(-n+54)': {
+                                marginBottom: '8px',
+                            },
+                        }}
+                    >
+                        {board.map((row, rowIndex) =>
+                            row.map((cell, colIndex) => (
+                                <SudokuCell
+                                    key={`${rowIndex}-${colIndex}`}
+                                    value={cell}
+                                    row={rowIndex}
+                                    col={colIndex}
+                                    isInitial={isInitialCell(rowIndex, colIndex)}
+                                    isInvalid={isInvalidCell(rowIndex, colIndex)}
+                                    isColorMode={isColorMode}
+                                    currentDifficulty={currentDifficulty}
+                                    onClick={() => handleCellClick(rowIndex, colIndex)}
+                                />
+                            ))
+                        )}
+                    </Box>
+                </Paper>
+            </Box>
 
             <NumberSelector
                 open={showSelector}
@@ -363,6 +425,87 @@ const SudokuBoard: React.FC = () => {
                         Continuar Jogando
                     </Button>
                 </DialogActions>
+            </Dialog>
+
+            {/* Modal de Pause */}
+            <Dialog
+                open={showPauseDialog}
+                onClose={() => { }} // Não permite fechar clicando fora
+                fullScreen
+                PaperProps={{
+                    sx: {
+                        backgroundColor: '#1a1a1a',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    },
+                }}
+            >
+                <DialogContent
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: '100vh',
+                        padding: 4,
+                    }}
+                >
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 3,
+                            textAlign: 'center',
+                        }}
+                    >
+                        <Typography
+                            variant="h2"
+                            sx={{
+                                color: '#e0e0e0',
+                                fontWeight: 700,
+                                marginBottom: 2,
+                            }}
+                        >
+                            ⏸️ Jogo Pausado
+                        </Typography>
+                        <Typography
+                            variant="h5"
+                            sx={{
+                                color: '#b0b0b0',
+                                marginBottom: 1,
+                            }}
+                        >
+                            O tempo está pausado
+                        </Typography>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                color: '#b0b0b0',
+                                marginBottom: 3,
+                            }}
+                        >
+                            Clique em "Continuar" para retomar o jogo
+                        </Typography>
+                        <Button
+                            variant="contained"
+                            onClick={handlePause}
+                            size="large"
+                            sx={{
+                                backgroundColor: '#e0e0e0',
+                                color: '#1a1a1a',
+                                fontSize: '1.2rem',
+                                padding: '12px 32px',
+                                '&:hover': {
+                                    backgroundColor: '#b0b0b0',
+                                },
+                            }}
+                        >
+                            ▶️ Continuar
+                        </Button>
+                    </Box>
+                </DialogContent>
             </Dialog>
         </Box>
     );
